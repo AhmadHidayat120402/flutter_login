@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:login2/home_page.dart';
 import 'show.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -9,11 +12,34 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
+  registerSubmit() async{
+    try{
+      await _firebaseAuth.createUserWithEmailAndPassword(email: _emailController.text.toString().trim(), password: _passwordController.text);
+    }catch (e){
+      print(e);
+      SnackBar(content: Text(e.toString()));
+    }
+
+  }
+
+  loginSubmit() async{
+    try{
+      _firebaseAuth.signInWithEmailAndPassword(email: _emailController.text, password: _passwordController.text).then((value) => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage())));
+    } catch (e){
+      print(e);
+      SnackBar(content: Text(e.toString()));
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Aplikasi Form"),
+        title: Text("Latihan Form"),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -29,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(20),
                       )))),
           Padding(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               child: TextField(
                   obscureText: true,
                   decoration: InputDecoration(
@@ -41,12 +67,12 @@ class _LoginPageState extends State<LoginPage> {
             height: 10,
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {loginSubmit();},
             child: Text("LOGIN"),
           ),
           SizedBox(
             height:5),
-        
+      TextButton(onPressed: (){registerSubmit();}, child: Text("Jika belum memiliki akun silahkah"))
         ],
       ),
     );
